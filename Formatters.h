@@ -57,13 +57,14 @@ public:
 };
 
 /**
- * Optimization: Specialized << operator, which can be inlined even with
- * -Os (the indirect route through Print::print and printTo needs more
- *  extensive (type) analysis and inlining which isn't applied with -Os.
+ * Optimization: Specialized << operator, which directly calls PrintTuple.
+ * This allows GCC to inline up to or including the Formatter:printValue
+ * call, even with -Os. Without this, this needs a higher -O and -flto
+ * in some cases.
  */
 template <class Formatter, typename... Ts>
 static inline Print& operator << (Print &p, const FormattedValue<Formatter, Ts...> v) {
-  v.printTo(p);
+  PrintTuple<Formatter, tuple<Ts...>>::print(p, v.values);
   return p;
 }
 
