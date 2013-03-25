@@ -7,6 +7,7 @@
 
 #include "Formatters.h"
 #include "DoublePrint.h"
+#include "Types.h"
 
 
 /**
@@ -14,9 +15,28 @@
  * multiple stuff after each other. Using a template here makes sure
  * that anything that Print knows about, can be printed.
  */
-template <typename T>
+template <typename T, typename enable_if<!is_base_of<Printable, T>::value, int>::type = 0>
 inline Print& operator<< (Print &p, const T &v) {
   p.print(v);
+  return p;
+}
+
+/**
+ * Optimization: For Printable and subclasses, directly call printTo.
+ * This helps GCC to inline the printTo call in some cases.
+ *
+ * This optimization needs complex template magic, since just defining
+ * an overloaded version of operator<< for Printable& is not enough: The
+ * templated version above will be instantiated for all subclasses, so
+ * the overloaded version will never be used. In addition, it seems that
+ * in some cases, such a Printable& version would not be as efficient as
+ * possible, since (at some significant point in the optimization
+ * process) GCC doesn't know the exact kind of Printable passed, so it
+ * can't inline the printTo virtual call.
+ */
+template <typename T, typename enable_if<is_base_of<Printable, T>::value, int>::type = 0>
+inline Print& operator<< (Print &p, const T &v) {
+  v.printTo(p);
   return p;
 }
 
@@ -42,15 +62,9 @@ public:
 };
 
 /**
- * Optimization: Specialized << operator, which can be inlined even with
- * -Os (the indirect route through Print::print and printTo needs more
- *  extensive (type) analysis and inlining which isn't applied with -Os.
+ * Static instantiation of Endl, to allow code like:
+ *   Serial << endl;
  */
-static inline Print& operator << (Print &p, const Endl &e) {
-  e.printTo(p);
-  return p;
-}
-
 static Endl endl;
 
 #endif // __TSTREAMING_H
