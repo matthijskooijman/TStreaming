@@ -26,7 +26,7 @@ public:
    * compiler will know how to optimize the copies away).
    */
   template <typename T>
-  inline DoublePrint operator<< (T v) {
+  inline DoublePrint operator<< (const T &v) {
           print(v);
           return *this;
   }
