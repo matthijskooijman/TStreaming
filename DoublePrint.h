@@ -43,3 +43,5 @@ inline DoublePrint operator &(Print& a, Print& b) {
 }
 
 #endif // __TSTREAMING_DOUBLE_RINT_H
+
+/* vim: set sw=2 sts=2 expandtab filetype=cpp: */
