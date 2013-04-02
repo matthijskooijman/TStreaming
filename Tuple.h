@@ -25,3 +25,8 @@ public:
 protected:
 Head m_head;
 };
+
+template<typename... Ts>
+tuple<Ts...> make_tuple(const Ts&... a) {
+	return tuple<Ts...>(a...);
+}
