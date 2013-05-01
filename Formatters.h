@@ -119,13 +119,20 @@ public:
   }
 };
 
-template <unsigned digits, unsigned base = 10>
-class Number {
-public:
+/*
+ * Helper class, use Number below instead of this class.
+ */
+template <unsigned base>
+class NumberBase { /* Base here means base class, not e.g, base 16 */
+protected:
+  /* The actual implementation of printing numbers lives in this
+   * superclass, so the compiler doesn't generate a separate
+   * implementation for every number of digits.
+   * base, not once for each set of parameters. The latter could cause a
+   * lot of duplicate code. */
   template <typename T>
-  static size_t printValue(Print& p, T value) {
+  static size_t printNumber(Print& p, T value, unsigned digits) {
     uint8_t buf[digits];
-    static_assert(base >= 2, "Base cannot be less than 2");
 
     /* Deduce each digit in turn */
     for (size_t i = digits; i > 0; --i) {
@@ -133,6 +140,17 @@ public:
       value /= base;
     }
     return p.write(buf, digits);
+  }
+};
+
+template <unsigned digits, unsigned base = 10>
+class Number : protected NumberBase<base> {
+public:
+  template <typename T>
+  static size_t printValue(Print& p, T value) {
+    static_assert(base >= 2, "Base cannot be less than 2");
+    static_assert(base <= 16, "Base cannot be more than 16");
+    NumberBase<base>::printNumber(p, value, digits);
   }
 };
 
@@ -209,19 +227,17 @@ public:
   }
 };
 
-/**
- * Format a fixed point number as a decimal number with a given
- * precision.
- *
- * The value represented by the fixed point number is value * 1/scale.
- *
- * The precision is the number of decimal digits to output.
+/*
+ * Helper class, use Fixed below instead of this class.
  */
-template <size_t scale, size_t precision>
-class Fixed {
-public:
+class FixedBase {
+protected:
+  /* The actual implementation of printing fixed values lives in this
+   * superclass, so it gets generated only once for each value type, not
+   * once for each set of parameters. The latter could cause a lot of
+   * duplicate code. */
   template <typename T>
-  static size_t printValue(Print& p, T value) {
+  static size_t printFixed(Print &p, T value, size_t scale, size_t precision) {
     size_t res = 0;
     /* Print the integer part */
     res += p.print(value / scale, DEC);
@@ -234,6 +250,23 @@ public:
     }
 
     return res;
+  }
+};
+
+/**
+ * Format a fixed point number as a decimal number with a given
+ * precision.
+ *
+ * The value represented by the fixed point number is value * 1/scale.
+ *
+ * The precision is the number of decimal digits to output.
+ */
+template <size_t scale, size_t precision>
+class Fixed : protected FixedBase {
+public:
+  template <typename T>
+  static size_t printValue(Print& p, T value) {
+    return printFixed(p, value, scale, precision);
   }
 };
 
