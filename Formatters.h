@@ -131,11 +131,11 @@ protected:
    * base, not once for each set of parameters. The latter could cause a
    * lot of duplicate code. */
   template <typename T>
-  static size_t printNumber(Print& p, T value, unsigned digits) {
+  static size_t printNumber(Print& p, T value, uint8_t digits) {
     uint8_t buf[digits];
 
     /* Deduce each digit in turn */
-    for (size_t i = digits; i > 0; --i) {
+    for (uint8_t i = digits; i > 0; --i) {
       buf[i - 1] = "01234567890ABCDEF"[value % base];
       value /= base;
     }
@@ -143,7 +143,7 @@ protected:
   }
 };
 
-template <unsigned digits, unsigned base = 10>
+template <uint8_t digits, unsigned base = 10>
 class Number : protected NumberBase<base> {
 public:
   template <typename T>
