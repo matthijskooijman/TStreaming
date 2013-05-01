@@ -86,6 +86,8 @@ inline FormattedValue<Formatter, Ts...> V(Ts... vs) {return FormattedValue<Forma
  * of bits. Works for a signed integers as well, as long as they're
  * positive (for negative integers, you just get (part of) the raw two's
  * complement representation.
+ *
+ * TODO: Merge (parts of) HexBits with Number
  */
 template <size_t bits>
 class HexBits {
