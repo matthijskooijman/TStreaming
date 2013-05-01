@@ -2,6 +2,7 @@
 #define __TSTREAMING_FORMATTERS_H
 
 #include "Tuple.h"
+#include "TValue.h"
 
 /* Helper functor to get the values from a tuple and pass them to a
  * printer function. It recursively calls itself to move all values out
@@ -305,25 +306,31 @@ public:
   }
 };
 
+/* This needs to have external linkage, so it can be used as a template
+ * argument */
+constexpr const char commaspace[] = ", ";
+// typedef CommaSpace here, specifying TStr<commaspace> literally as a
+// default argument below doesn't seem to work.
+typedef TStr<commaspace> CommaSpace;
 
 /**
  * Print an array of given length.
  *
  * Each array element is formatted with the given formatter, and
- * elements are separated with up to two separator characters (set to 0
- * to hide the separator).
+ * elements are separated with the given separator.
+ *
+ * The separator should be TValue or one of its subclasses. Pass TNullStr to
+ * print without a separator.
  */
-template <class Formatter = NoFormat, char separator1 = ',', char separator2 = ' '>
+template <class Formatter = NoFormat, typename Separator = CommaSpace>
 class Array {
 public:
   template <typename T>
   static size_t printValue(Print& p, const T *array, size_t len) {
     size_t res = 0;
     for (size_t i = 0; i < len; ++i) {
-      if (i != 0 && separator1)
-        p.print(separator1);
-      if (i != 0 && separator2)
-        p.print(separator1);
+      if (i != 0 && Separator::value)
+        p.print(Separator::value);
       res += p.print(V<Formatter>(array[i]));
     }
   }
