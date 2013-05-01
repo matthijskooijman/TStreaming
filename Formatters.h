@@ -348,6 +348,26 @@ public:
   }
 };
 
+template <class Formatter, typename Append>
+class Postfix {
+public:
+  template <typename T>
+  static size_t printValue(Print& p, const T &v) {
+    Formatter::printValue(p, v);
+    p.print(Append::value);
+  }
+};
+
+template <class Formatter, typename Prepend>
+class Prefix {
+public:
+  template <typename T>
+  static size_t printValue(Print& p, const T &v) {
+    p.print(Prepend::value);
+    Formatter::printValue(p, v);
+  }
+};
+
 #endif // __TSTREAMING_FORMATTERS_H
 
 /* vim: set sw=2 sts=2 expandtab filetype=cpp: */
