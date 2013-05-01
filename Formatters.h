@@ -336,6 +336,18 @@ public:
   }
 };
 
+template <class Formatter, typename Special, typename Display>
+class SpecialValue {
+public:
+  template <typename T>
+  static size_t printValue(Print& p, T &v) {
+    if (v == Special::value)
+      p.print(Display::value);
+    else
+      Formatter::printValue(p, v);
+  }
+};
+
 #endif // __TSTREAMING_FORMATTERS_H
 
 /* vim: set sw=2 sts=2 expandtab filetype=cpp: */
