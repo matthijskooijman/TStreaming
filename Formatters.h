@@ -169,7 +169,7 @@ public:
   static size_t printValue(Print& p, T value) {
     size_t len = p.print(value);
     while (len < width)
-      len += p.write(' ');
+      len += p.write(padding);
   }
 };
 
