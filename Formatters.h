@@ -99,14 +99,18 @@ public:
     /* Clear any bits we're not supposed to use. Note that we shift 2 <<
      * bits - 1 instead of 1 << bits, to prevent shifting by the total
      * width when all bits are used. This should be the same, except
-     * when bits is zero, which isn't supported anyway. */
-    value &= ((T)2 << bits - 1) - 1;
+     * when bits is zero, which isn't supported anyway.
+     * We do all the operations inside unsigned long, to also allow
+     * printing enum class types (which don't have shift or and
+     * operations). It would be better to use uintmax_t, but print
+     * cannot handle that type. */
+    unsigned long masked = ((unsigned long)value & ((2UL << bits - 1) - 1));
 
     size_t res = 0;
 
     /* Print nibble by nibble */
     for (int nibble = (bits - 1) / 4; nibble >= 0; --nibble) {
-      res += p.print((value >> (nibble * 4)) & 0xf, HEX);
+      res += p.print((masked >> (nibble * 4)) & 0xf, HEX);
     }
 
     return res;
