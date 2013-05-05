@@ -171,8 +171,12 @@ public:
   template <typename T>
   static size_t printValue(Print& p, T value) {
     size_t len = p.print(value);
-    while (len < width)
-      len += p.write(padding);
+    while (len < width) {
+      size_t res = p.write(padding);
+      if (res == 0)
+        break; /* Prevent infinite loop when writing fails */
+      len += res;
+    }
   }
 };
 
